@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI游戏推荐Demo-多风格交互推荐</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f6fa;
+      color: #222;
+    }
+    .app-header {
+      background: #2d8cf0;
+      color: #fff;
+      padding: 18px 0 12px 0;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 2px 8px #0001;
+    }
+    .tab-bar {
+      display: flex;
+      margin: 18px 10px 0 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #e6eaf1;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+      background: #e6eaf1;
+      color: #666;
+      border: none;
+      outline: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: #2d8cf0;
+      font-weight: bold;
+    }
+    .tab-content {
+      padding: 18px 10px 10px 10px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #0001;
+      margin-bottom: 18px;
+      padding: 18px 16px;
+    }
+    .input-row {
+      display: flex;
+      margin-bottom: 12px;
+    }
+    .input-row input, .input-row select {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+    .input-row button {
+      margin-left: 8px;
+      padding: 10px 18px;
+      background: #2d8cf0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .feedback-row {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .feedback-row button {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      background: #f0f0f0;
+      color: #2d8cf0;
+      transition: background 0.2s, color 0.2s;
+    }
+    .feedback-row button.selected,
+    .feedback-row button:hover {
+      background: #2d8cf0;
+      color: #fff;
+    }
+    .explain {
+      font-size: 14px;
+      color: #888;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 12px 0 6px 0;
+      color: #2d8cf0;
+    }
+    .tag {
+      display: inline-block;
+      background: #e6eaf1;
+      color: #2d8cf0;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 13px;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+    .game-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .game-card {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 4px #0001;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .game-icon {
+      font-size: 32px;
+      width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .game-info {
+      flex: 1;
+    }
+    .game-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #2d8cf0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .game-desc {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .dialog-flow {
+      margin-top: 10px;
+    }
+    .dialog-bubble {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px #0001;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .dialog-bubble .bubble-title {
+      font-weight: bold;
+      color: #2d8cf0;
+      margin-bottom: 6px;
+    }
+    .dialog-bubble .bubble-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    .dialog-bubble .bubble-table th,
+    .dialog-bubble .bubble-table td {
+      border: 1px solid #e6eaf1;
+      padding: 4px 8px;
+      text-align: center;
+    }
+    .bubble-btns {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .bubble-btns button {
+      background: #e6eaf1;
+      color: #2d8cf0;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bubble-btns button:hover {
+      background: #2d8cf0;
+      color: #fff;
+    }
+    .bubble-feedback {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .bubble-feedback button {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      background: #f0f0f0;
+      color: #2d8cf0;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bubble-feedback button.selected,
+    .bubble-feedback button:hover {
+      background: #2d8cf0;
+      color: #fff;
+    }
+    .bubble-input-row {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+    }
+    .bubble-input-row input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+    }
+    .bubble-input-row button {
+      padding: 7px 16px;
+      background: #2d8cf0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    @media (max-width: 600px) {
+      .tab-content, .tab-bar { padding-left: 0; padding-right: 0; }
+      .card { padding: 14px 8px; }
+      .game-card { flex-direction: column; align-items: flex-start; }
+      .game-icon { margin-bottom: 4px; }
+      .dialog-bubble { padding: 10px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">AI游戏推荐 Demo咱就是个纯示意</div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab1-btn">互动推荐</button>
+    <button class="tab-btn" id="tab2-btn">偏好分析推荐</button>
+  </div>
+  <div class="tab-content" id="tab1-content">
+    <!-- 互动推荐 -->
+    <div class="card">
+      <div style="font-size:17px;font-weight:bold;margin-bottom:10px;">告诉我你喜欢什么游戏，或者想找什么样的游戏</div>
+      <div class="explain">
+        支持输入：第五人格、王者荣耀、捕鱼大作战、恋与深空，或如“休闲游戏”“好玩的游戏”“射击游戏”等类别表达
+      </div>
+      <div class="input-row">
+        <input type="text" id="userInput" placeholder="如：第五人格、恋与深空、射击、解谜、王者荣耀...">
+        <button onclick="getRecommendation()">推荐</button>
+      </div>
+      <div id="dialogFlow" class="dialog-flow"></div>
+    </div>
+  </div>
+  <div class="tab-content" id="tab2-content" style="display:none;">
+    <!-- 偏好分析推荐 -->
+    <div class="card">
+      <div style="font-size:17px;font-weight:bold;margin-bottom:10px;">请选择你的游戏行为案例：</div>
+      <div class="input-row">
+        <select id="profileCase" style="flex:1;padding:10px;border-radius:8px;font-size:16px;">
+          <option value="guofeng">国风/玄幻/武侠重度RPG玩家</option>
+          <option value="funny">轻松搞怪/解压/策略玩家</option>
+        </select>
+        <button onclick="showProfileAnalysis()">分析</button>
+      </div>
+      <div id="profileAnalysis"></div>
+      <div id="profileRecommend"></div>
+    </div>
+  </div>
+  <script>
+    // Tab切换
+    document.getElementById('tab1-btn').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('tab2-btn').classList.remove('active');
+      document.getElementById('tab1-content').style.display = '';
+      document.getElementById('tab2-content').style.display = 'none';
+    };
+    document.getElementById('tab2-btn').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('tab1-btn').classList.remove('active');
+      document.getElementById('tab2-content').style.display = '';
+      document.getElementById('tab1-content').style.display = 'none';
+    };
+
+    // 互动推荐数据（简化版，普通类型用）
+    const gameRecommendData = {
+      "解谜": [
+        {
+          icon: "🧩",
+          name: "未上锁的房间",
+          tag: "密室解谜",
+          desc: "极具沉浸感的3D密室解谜，谜题设计巧妙，氛围紧张刺激，适合喜欢挑战大脑的你。"
+        },
+        {
+          icon: "🌄",
+          name: "纪念碑谷",
+          tag: "艺术解谜",
+          desc: "极简唯美画风，空间错位谜题，视觉与心灵的双重享受，适合喜欢艺术与解谜结合的玩家。"
+        },
+        {
+          icon: "🤖",
+          name: "机械迷城",
+          tag: "蒸汽朋克解谜",
+          desc: "手绘风格，机械世界冒险，谜题丰富，故事温馨，适合喜欢探索与解谜的你。"
+        }
+      ],
+      "射击": [
+        {
+          icon: "🔫",
+          name: "和平精英",
+          tag: "战术射击",
+          desc: "百人同场竞技，真实枪械手感，丰富载具与地图，适合喜欢团队协作与竞技的玩家。"
+        },
+        {
+          icon: "💣",
+          name: "使命召唤手游",
+          tag: "经典射击",
+          desc: "还原端游体验，丰富模式，操作流畅，适合FPS老玩家和新手。"
+        },
+        {
+          icon: "🏹",
+          name: "堡垒之夜",
+          tag: "建造射击",
+          desc: "独特建造系统，卡通风格，创意玩法，适合喜欢创新和社交的玩家。"
+        }
+      ],
+      "二次元": [
+        {
+          icon: "🌌",
+          name: "原神",
+          tag: "开放世界RPG",
+          desc: "超高自由度探索，精美二次元画风，丰富角色养成，适合喜欢冒险与剧情的你。"
+        },
+        {
+          icon: "🚂",
+          name: "崩坏：星穹铁道",
+          tag: "回合制冒险",
+          desc: "科幻二次元，策略回合战斗，剧情精彩，适合喜欢科幻与策略的玩家。"
+        },
+        {
+          icon: "🦸‍♀️",
+          name: "明日方舟",
+          tag: "塔防养成",
+          desc: "独特塔防玩法，角色立绘精美，策略性强，适合喜欢挑战和收集的你。"
+        }
+      ],
+      "竞技": [
+        {
+          icon: "⚔️",
+          name: "王者荣耀",
+          tag: "MOBA竞技",
+          desc: "国民级5V5竞技，英雄多样，操作上手快，适合喜欢团队对抗的玩家。"
+        },
+        {
+          icon: "🧙‍♂️",
+          name: "英雄联盟手游",
+          tag: "MOBA竞技",
+          desc: "端游经典还原，策略与操作并重，适合喜欢深度竞技的你。"
+        },
+        {
+          icon: "🚗",
+          name: "QQ飞车",
+          tag: "竞速漂移",
+          desc: "极速漂移，丰富赛道，个性装扮，适合喜欢速度与激情的玩家。"
+        }
+      ],
+      "剧情": [
+        {
+          icon: "💖",
+          name: "恋与深空",
+          tag: "恋爱剧情",
+          desc: "沉浸式恋爱体验，剧情丰富，角色互动真实，适合喜欢剧情与情感共鸣的你。"
+        },
+        {
+          icon: "🔍",
+          name: "未定事件簿",
+          tag: "推理恋爱",
+          desc: "推理与恋爱结合，案件解谜，角色塑造立体，适合喜欢推理与恋爱的玩家。"
+        },
+        {
+          icon: "☁️",
+          name: "光·遇",
+          tag: "治愈冒险",
+          desc: "唯美画风，温暖社交，探索与成长并重，适合喜欢治愈与冒险的你。"
+        }
+      ],
+      "养成": [
+        {
+          icon: "🦸‍♀️",
+          name: "明日方舟",
+          tag: "塔防养成",
+          desc: "策略塔防与角色养成结合，画风独特，适合喜欢策略与收集的玩家。"
+        },
+        {
+          icon: "👗",
+          name: "闪耀暖暖",
+          tag: "换装养成",
+          desc: "海量服饰搭配，精美立绘，剧情丰富，适合喜欢时尚与养成的你。"
+        },
+        {
+          icon: "👹",
+          name: "阴阳师",
+          tag: "国风养成",
+          desc: "顶级国风美术，式神收集养成，剧情深度，适合喜欢古风与养成的玩家。"
+        }
+      ],
+      "冒险": [
+        {
+          icon: "🌌",
+          name: "原神",
+          tag: "开放世界RPG",
+          desc: "超高自由度探索，丰富主线与支线任务，适合喜欢冒险与探索的你。"
+        },
+        {
+          icon: "☁️",
+          name: "光·遇",
+          tag: "治愈冒险",
+          desc: "温暖社交，唯美画风，适合喜欢治愈与冒险的玩家。"
+        },
+        {
+          icon: "🧩",
+          name: "未上锁的房间",
+          tag: "密室解谜",
+          desc: "沉浸式密室解谜，谜题丰富，适合喜欢挑战的你。"
+        }
+      ]
+    };
+
+    // 互动推荐主逻辑
+    let dialogHistory = [];
+    function getRecommendation(tag) {
+      const input = tag || document.getElementById('userInput').value.trim();
+      if (!input) return;
+      // 特殊case：第五人格
+      if (/第五人格/i.test(input)) {
+        addDialogBubble(getBubbleForId5());
+        return;
+      }
+      // 特殊case：恋与深空
+      if (/恋与深空/i.test(input)) {
+        addDialogBubble(getBubbleForLianYu());
+        return;
+      }
+      // 其它类型
+      let matchedTag = null;
+      for (let key in gameRecommendData) {
+        if (input.includes(key) || (gameRecommendData[key].some(g => input.includes(g.name)))) {
+          matchedTag = key;
+          break;
+        }
+      }
+      if (!matchedTag) {
+        // 随机推荐一个类型
+        const keys = Object.keys(gameRecommendData);
+        matchedTag = keys[Math.floor(Math.random() * keys.length)];
+      }
+      addDialogBubble(getBubbleForNormal(matchedTag, input));
+    }
+
+    // 普通类型推荐气泡
+    function getBubbleForNormal(tag, input) {
+      const games = gameRecommendData[tag];
+      let reason = "";
+      switch(tag) {
+        case "解谜": reason = "你喜欢挑战大脑、探索未知，享受解谜带来的成就感和沉浸体验。"; break;
+        case "射击": reason = "你偏好紧张刺激的竞技氛围，喜欢团队协作和真实的射击体验。"; break;
+        case "二次元": reason = "你喜欢精美的二次元画风，享受角色养成和丰富剧情。"; break;
+        case "竞技": reason = "你热爱团队对抗，追求操作与策略并重的竞技乐趣。"; break;
+        case "剧情": reason = "你注重故事和角色互动，喜欢沉浸在丰富的剧情世界中。"; break;
+        case "养成": reason = "你喜欢收集和养成，享受角色成长和策略搭配的乐趣。"; break;
+        case "冒险": reason = "你喜欢探索世界，体验自由冒险和成长的过程。"; break;
+        default: reason = "为你精选了几款高质量好玩的游戏，快来体验吧！";
+      }
+      let html = `<div class="bubble-title">推荐理由</div>
+        <div class="explain">${reason}</div>
+        <div class="game-cards">`;
+      games.slice(0, 3).forEach(g => {
+        html += `
+          <div class="game-card">
+            <div class="game-icon">${g.icon}</div>
+            <div class="game-info">
+              <div class="game-title">${g.name} <span class="tag">${g.tag}</span></div>
+              <div class="game-desc">${g.desc}</div>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>
+        <div class="bubble-feedback">
+          <button onclick="feedback('like', null)">满意</button>
+          <button onclick="feedback('dislike', '${tag}')">不满意</button>
+        </div>
+      `;
+      return html;
+    }
+
+    // 第五人格详细推荐气泡
+    function getBubbleForId5(detail) {
+      let html = `<div class="bubble-title">你想找的是：非对称对抗竞技（1v4）+ 恐怖悬疑氛围 + 角色扮演/技能的游戏</div>
+      <div class="explain">核心乐趣：逃生/追捕的紧张感、角色技能的独特策略以及合作/对抗的社交体验。</div>
+      <div class="section-title">🌟 强烈推荐（核心玩法高度相似）</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">🩸</div>
+          <div class="game-info">
+            <div class="game-title">黎明杀机 手游 <span class="tag">非对称竞技</span></div>
+            <div class="game-desc"><b>平台：</b>iOS/Android (外服)<br>
+            <b>相似度：</b>⭐⭐⭐⭐⭐<br>
+            <b>特点：</b>正统非对称对抗鼻祖的手游版，1杀手vs4逃生者，修发电机开门逃生。角色、技能、地图高度还原，恐怖氛围浓郁，策略深度高。<br>
+            <b>注意：</b>需加速器，网络要求较高。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">🐭</div>
+          <div class="game-info">
+            <div class="game-title">猫和老鼠 <span class="tag">非对称竞技</span></div>
+            <div class="game-desc"><b>平台：</b>iOS/Android (国服)<br>
+            <b>相似度：</b>⭐⭐⭐⭐<br>
+            <b>特点：</b>1v4非对称对抗，卡通欢乐画风，汤姆追捕杰瑞小队，地图道具互动丰富，节奏快，适合休闲玩家。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">🎭 风格化替代</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">👹</div>
+          <div class="game-info">
+            <div class="game-title">鬼畜天线宝宝 <span class="tag">猎奇非对称</span></div>
+            <div class="game-desc">1名玩家扮演恐怖反派追捕4名生存者，黑暗童话风+黑色幽默，免费无内购。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">🧟‍♂️</div>
+          <div class="game-info">
+            <div class="game-title">EVD 追捕行动 <span class="tag">恐怖非对称</span></div>
+            <div class="game-desc">基于经典恐怖电影IP，1名恶魔玩家vs4名人类幸存者，美式血腥恐怖+角色技能联动。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">🔦 国产优质替代</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">🧛‍♂️</div>
+          <div class="game-info">
+            <div class="game-title">失落记忆 <span class="tag">中式恐怖</span></div>
+            <div class="game-desc">2-4人合作对抗怪物，氛围阴森压抑，强调躲藏、解谜、资源管理，恐怖感贴近第五人格。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">✅ 终极选择建议</div>
+      <table class="bubble-table">
+        <tr><th>偏好</th><th>首选推荐</th><th>次选推荐</th></tr>
+        <tr><td>硬核还原杀机体验</td><td>黎明杀机 手游</td><td>-</td></tr>
+        <tr><td>轻松搞笑+快节奏</td><td>猫和老鼠</td><td>鬼畜天线宝宝</td></tr>
+        <tr><td>沉浸中式恐怖</td><td>失落记忆</td><td>关注探灵笔记动态</td></tr>
+        <tr><td>等电影IP大作</td><td>预约EVD 追捕行动</td><td>-</td></tr>
+      </table>
+      <div class="bubble-feedback">
+        <button onclick="feedback('like', 'id5')">满意</button>
+        <button onclick="feedback('dislike', 'id5')">不满意</button>
+      </div>
+      `;
+      return html;
+    }
+
+    // 恋与深空详细推荐气泡
+    function getBubbleForLianYu(detail) {
+      let html = `<div class="bubble-title">你想要的是：高颜值3D动态互动 + 多男主情感羁绊 + 强剧情代入感 + 现代/科幻都市背景</div>
+      <div class="section-title">🌟 核心相似：次世代恋爱互动+高质量3D</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">⚖️</div>
+          <div class="game-info">
+            <div class="game-title">未定事件簿 <span class="tag">3D互动恋爱</span></div>
+            <div class="game-desc">全动态3D互动，都市悬疑+律政题材，触碰反馈系统，动画电影级卡面。<br>更侧重剧情推理，恋爱线在合作查案中深化。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">🌃</div>
+          <div class="game-info">
+            <div class="game-title">光与夜之恋 <span class="tag">互动恋爱</span></div>
+            <div class="game-desc">360°环绕式互动，中日双CV，多分支剧情，现代都市+超能力设定。<br>氛围更暗黑现实向，卡面偏华丽暗色调。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">🚀 科幻/未来感恋爱替代</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">🪐</div>
+          <div class="game-info">
+            <div class="game-title">时空中的绘旅人 <span class="tag">科幻恋爱</span></div>
+            <div class="game-desc">平行时空穿越，男主身份多样，Live2D互动升级，适合喜欢星际浪漫和宏大世界观。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">🌊</div>
+          <div class="game-info">
+            <div class="game-title">代号：海 <span class="tag">未来恋爱</span></div>
+            <div class="game-desc">近未来海洋都市，网易技术加持，水下光影、动态流体效果惊艳，强烈建议预约。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">💖 小众但沉浸感炸裂的宝藏</div>
+      <div class="game-cards">
+        <div class="game-card">
+          <div class="game-icon">👑</div>
+          <div class="game-info">
+            <div class="game-title">少女的王座 <span class="tag">西幻恋爱RPG</span></div>
+            <div class="game-desc">西幻政治权谋，3D模型约会，深度人设，选择影响国家存亡。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">🌍</div>
+          <div class="game-info">
+            <div class="game-title">Mr Love: Queen's Choice <span class="tag">国际服恋爱</span></div>
+            <div class="game-desc">乙游开山鼻祖，短信/电话/朋友圈互动，科幻悬疑主线，全语音覆盖。</div>
+          </div>
+        </div>
+        <div class="game-card">
+          <div class="game-icon">😈</div>
+          <div class="game-info">
+            <div class="game-title">Obey Me! <span class="tag">恶魔同居</span></div>
+            <div class="game-desc">7位恶魔男主，Q版3D互动，音游+卡牌玩法，搞笑治愈向。</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">📌 按你偏好精准匹配</div>
+      <table class="bubble-table">
+        <tr><th>需求</th><th>首选推荐</th><th>备选</th></tr>
+        <tr><td>3D动态亲密互动</td><td>未定事件簿</td><td>光与夜之恋</td></tr>
+        <tr><td>科幻星际感</td><td>时空中的绘旅人</td><td>预约代号：海</td></tr>
+        <tr><td>多分支剧情沉浸</td><td>少女的王座</td><td>Mr Love国际版</td></tr>
+        <tr><td>轻松治愈+声控</td><td>Obey Me!</td><td>-</td></tr>
+      </table>
+      <div class="bubble-feedback">
+        <button onclick="feedback('like', 'lianyu')">满意</button>
+        <button onclick="feedback('dislike', 'lianyu')">不满意</button>
+      </div>
+      `;
+      return html;
+    }
+
+    // 追加对话气泡
+    function addDialogBubble(html) {
+      dialogHistory.push(html);
+      renderDialogFlow();
+    }
+    function renderDialogFlow() {
+      document.getElementById('dialogFlow').innerHTML = dialogHistory.map(b => `<div class="dialog-bubble">${b}</div>`).join('');
+      setTimeout(() => {
+        document.getElementById('dialogFlow').scrollTop = document.getElementById('dialogFlow').scrollHeight;
+      }, 100);
+    }
+
+    // 反馈与细化
+    function feedback(type, tag) {
+      if (type === 'like') {
+        addDialogBubble(`<div class="explain" style="color:#2d8cf0;">感谢你的反馈，已为你记录偏好！</div>`);
+      } else if (type === 'dislike') {
+        // 细化需求
+        let html = `<div class="bubble-title">你可以补充你的需求，让推荐更精准：</div>
+        <div class="bubble-btns">`;
+        let btns = [];
+        if (tag === 'id5') {
+          btns = ["更喜欢单人", "更喜欢剧情丰富", "更喜欢轻松氛围", "更喜欢中式恐怖"];
+        } else if (tag === 'lianyu') {
+          btns = ["更喜欢科幻感", "更喜欢多分支剧情", "更喜欢轻松治愈", "更喜欢互动玩法"];
+        } else {
+          btns = ["更喜欢剧情", "更喜欢竞技", "更喜欢养成", "更喜欢社交"];
+        }
+        btns.forEach(txt => {
+          html += `<button onclick="refineDemand('${txt.replace(/'/g, "\\'")}')">${txt}</button>`;
+        });
+        html += `</div>
+        <div class="bubble-input-row">
+          <input type="text" id="refineInput" placeholder="自定义补充你的需求">
+          <button onclick="refineDemand(document.getElementById('refineInput').value)">提交</button>
+        </div>
+        `;
+        addDialogBubble(html);
+        setTimeout(() => {
+          document.getElementById('refineInput') && document.getElementById('refineInput').focus();
+        }, 200);
+      }
+    }
+    // 细化需求推荐
+    function refineDemand(txt) {
+      if (!txt) return;
+      // 针对细化内容，简单规则匹配
+      if (/剧情|单人|沉浸|推理/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('剧情', txt));
+      } else if (/竞技|团队|对抗/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('竞技', txt));
+      } else if (/科幻|星际|未来/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('二次元', txt));
+      } else if (/恐怖|中式|悬疑/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('剧情', txt));
+      } else if (/养成|收集/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('养成', txt));
+      } else if (/治愈|轻松|解压/.test(txt)) {
+        addDialogBubble(getBubbleForNormal('冒险', txt));
+      } else {
+        // 默认走普通推荐
+        getRecommendation(txt);
+      }
+    }
+
+    // 回车快捷推荐
+    document.getElementById('userInput').addEventListener('keydown', function(e){
+      if(e.key === 'Enter') getRecommendation();
+    });
+
+    // 偏好分析推荐（原有逻辑不变）
+    function showProfileAnalysis() {
+      const val = document.getElementById('profileCase').value;
+      let analysis = '', recommend = '';
+      if (val === 'guofeng') {
+        analysis = `
+          <div class="section-title">🎯 题材偏好分析</div>
+          <div>
+            <span class="tag">国风/仙侠/武侠/玄幻</span>
+            <span class="tag">三国</span>
+            <span class="tag">幻想RPG</span>
+          </div>
+          <div class="explain">你偏好东方文化背景、古风美术、神话或武侠题材，喜欢沉浸感强、角色设定鲜明的世界观。对三国历史策略和西式幻想RPG也有一定兴趣。</div>
+          <div class="section-title">⚔️ 玩法偏好分析</div>
+          <div>
+            <span class="tag">MMO/ARPG/RPG</span>
+            <span class="tag">策略/SLG</span>
+            <span class="tag">福利驱动</span>
+          </div>
+          <div class="explain">你喜欢中重度RPG，乐于角色养成、刷副本、参与战斗，也喜欢策略搭配和活动福利。</div>
+          <div class="section-title">🎨 美术与风格</div>
+          <div>
+            <span class="tag">国风水墨</span>
+            <span class="tag">精致写实</span>
+            <span class="tag">热血夸张</span>
+          </div>
+          <div class="explain">你对美术质量有要求，偏好国风水墨、厚涂风格，也能接受热血夸张风格。</div>
+          <div class="section-title">🤝 社交互动</div>
+          <div>
+            <span class="tag">多人副本</span>
+            <span class="tag">公会/帮派</span>
+            <span class="tag">跨服战</span>
+          </div>
+          <div class="explain">你倾向于合作与竞技结合，喜欢有社交成分的游戏。</div>
+        `;
+        recommend = `
+          <div class="section-title">🎮 推荐游戏</div>
+          <div class="game-cards">
+            <div class="game-card">
+              <div class="game-icon">👹</div>
+              <div class="game-info">
+                <div class="game-title">阴阳师 <span class="tag">国风RPG</span></div>
+                <div class="game-desc"><b>亮点：</b>顶级国风美术与音乐，深度剧情，丰富式神收集与养成，PVE与PVP玩法兼备。<br>
+                <b>适合：</b>喜欢古风、剧情、收集养成、社交竞技的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🖌️</div>
+              <div class="game-info">
+                <div class="game-title">忘川风华录 <span class="tag">水墨养成</span></div>
+                <div class="game-desc"><b>亮点：</b>水墨国风画面，历史名士养成，沉浸式剧情，轻松社交。<br>
+                <b>适合：</b>喜欢历史、国风、休闲养成的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🗡️</div>
+              <div class="game-info">
+                <div class="game-title">仙剑世界 <span class="tag">仙侠MMO</span></div>
+                <div class="game-desc"><b>亮点：</b>经典IP，沉浸式剧情，开放世界探索，丰富副本与社交。<br>
+                <b>适合：</b>喜欢仙侠、剧情、探索的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🏯</div>
+              <div class="game-info">
+                <div class="game-title">三国志·战略版 <span class="tag">三国SLG</span></div>
+                <div class="game-desc"><b>亮点：</b>真实地形，深度谋略，万人同图国战，联盟协作。<br>
+                <b>适合：</b>喜欢三国、策略、联盟合作的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🐉</div>
+              <div class="game-info">
+                <div class="game-title">完美世界 <span class="tag">幻想MMORPG</span></div>
+                <div class="game-desc"><b>亮点：</b>高自由度飞行，精美画面，丰富职业与副本。<br>
+                <b>适合：</b>喜欢幻想、冒险、社交的玩家。</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (val === 'funny') {
+        analysis = `
+          <div class="section-title">🎯 题材&风格偏好</div>
+          <div>
+            <span class="tag">轻松解压</span>
+            <span class="tag">搞怪幽默</span>
+            <span class="tag">策略塔防</span>
+            <span class="tag">竞速破坏</span>
+          </div>
+          <div class="explain">你喜欢轻松、搞笑、操作简单的游戏，偏好有趣的物理模拟、策略但不烧脑、节奏适中、带点“反常规”幽默感。</div>
+          <div class="section-title">⚔️ 玩法偏好</div>
+          <div>
+            <span class="tag">沙雕物理</span>
+            <span class="tag">塔防策略</span>
+            <span class="tag">竞速发泄</span>
+            <span class="tag">创意模拟</span>
+          </div>
+          <div class="explain">你喜欢物理模拟、塔防、轻策略、竞速破坏等玩法，享受解压和搞怪体验。</div>
+        `;
+        recommend = `
+          <div class="section-title">🎮 推荐游戏</div>
+          <div class="game-cards">
+            <div class="game-card">
+              <div class="game-icon">🦢</div>
+              <div class="game-info">
+                <div class="game-title">无名鹅作祟 <span class="tag">沙雕物理</span></div>
+                <div class="game-desc"><b>亮点：</b>你扮演一只鹅，到处恶作剧，爆笑解压，支持多人合作。<br>
+                <b>适合：</b>喜欢轻松搞怪、解压、和朋友一起胡闹的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🤪</div>
+              <div class="game-info">
+                <div class="game-title">全面战争模拟器 <span class="tag">爆笑物理</span></div>
+                <div class="game-desc"><b>亮点：</b>超搞笑物理模拟战争，士兵像面条一样互殴，胡闹到极致。<br>
+                <b>适合：</b>喜欢爆笑、策略、物理模拟的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🧑‍🤝‍🧑</div>
+              <div class="game-info">
+                <div class="game-title">人类一败涂地 <span class="tag">Q弹解谜</span></div>
+                <div class="game-desc"><b>亮点：</b>Q弹角色解谜闯关，支持多人，沙雕物理，笑到抽筋。<br>
+                <b>适合：</b>喜欢物理解谜、合作闯关的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🧠</div>
+              <div class="game-info">
+                <div class="game-title">王国保卫战 <span class="tag">塔防策略</span></div>
+                <div class="game-desc"><b>亮点：</b>中世纪塔防，画风精致，策略性适中，非常好玩。<br>
+                <b>适合：</b>喜欢塔防、策略、轻度挑战的玩家。</div>
+              </div>
+            </div>
+            <div class="game-card">
+              <div class="game-icon">🏍️</div>
+              <div class="game-info">
+                <div class="game-title">Road Redemption <span class="tag">暴力摩托</span></div>
+                <div class="game-desc"><b>亮点：</b>“暴力摩托”精神续作，骑车、飙车、揍人，非常爽快。<br>
+                <b>适合：</b>喜欢竞速、发泄、动作的玩家。</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('profileAnalysis').innerHTML = analysis;
+      document.getElementById('profileRecommend').innerHTML = recommend;
+    }
+
+    // 回车快捷推荐
+    document.getElementById('userInput').addEventListener('keydown', function(e){
+      if(e.key === 'Enter') getRecommendation();
+    });
+  </script>
+</body>
+</html>
