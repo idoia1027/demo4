@@ -59,6 +59,7 @@
     .input-row {
       display: flex;
       margin-bottom: 12px;
+      gap: 8px;
     }
     .input-row input, .input-row select {
       flex: 1;
@@ -69,7 +70,6 @@
       outline: none;
     }
     .input-row button {
-      margin-left: 8px;
       padding: 10px 18px;
       background: #2d8cf0;
       color: #fff;
@@ -79,36 +79,31 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .feedback-row {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-    }
-    .feedback-row button {
-      flex: 1;
-      padding: 8px 0;
-      border-radius: 8px;
-      border: none;
-      font-size: 15px;
-      cursor: pointer;
-      background: #f0f0f0;
-      color: #2d8cf0;
-      transition: background 0.2s, color 0.2s;
-    }
-    .feedback-row button.selected,
-    .feedback-row button:hover {
-      background: #2d8cf0;
+    .input-row .clear-btn {
+      background: #f56c6c;
       color: #fff;
+      margin-left: 0;
     }
-    .explain {
-      font-size: 14px;
-      color: #888;
-      margin-top: 6px;
-      margin-bottom: 2px;
+    .dialog-flow {
+      margin-top: 10px;
+      min-height: 40px;
+    }
+    .dialog-bubble {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px #0001;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .bubble-title {
+      font-weight: bold;
+      color: #2d8cf0;
+      margin-bottom: 6px;
     }
     .section-title {
       font-weight: bold;
-      font-size: 16px;
+      font-size: 15px;
       margin: 12px 0 6px 0;
       color: #2d8cf0;
     }
@@ -161,30 +156,14 @@
       color: #444;
       line-height: 1.6;
     }
-    .dialog-flow {
-      margin-top: 10px;
-    }
-    .dialog-bubble {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px #0001;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .dialog-bubble .bubble-title {
-      font-weight: bold;
-      color: #2d8cf0;
-      margin-bottom: 6px;
-    }
-    .dialog-bubble .bubble-table {
+    .bubble-table {
       width: 100%;
       border-collapse: collapse;
       margin: 8px 0;
       font-size: 14px;
     }
-    .dialog-bubble .bubble-table th,
-    .dialog-bubble .bubble-table td {
+    .bubble-table th,
+    .bubble-table td {
       border: 1px solid #e6eaf1;
       padding: 4px 8px;
       text-align: center;
@@ -253,6 +232,12 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+    .explain {
+      font-size: 14px;
+      color: #888;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
     @media (max-width: 600px) {
       .tab-content, .tab-bar { padding-left: 0; padding-right: 0; }
       .card { padding: 14px 8px; }
@@ -278,6 +263,7 @@
       <div class="input-row">
         <input type="text" id="userInput" placeholder="如：第五人格、恋与深空、射击、解谜、王者荣耀...">
         <button onclick="getRecommendation()">推荐</button>
+        <button class="clear-btn" onclick="clearDialog()">清空/刷新</button>
       </div>
       <div id="dialogFlow" class="dialog-flow"></div>
     </div>
@@ -312,7 +298,7 @@
       document.getElementById('tab1-content').style.display = 'none';
     };
 
-    // 互动推荐数据（简化版，普通类型用）
+    // 互动推荐数据（普通类型用）
     const gameRecommendData = {
       "解谜": [
         {
@@ -524,9 +510,10 @@
       return html;
     }
 
-    // 第五人格详细推荐气泡
-    function getBubbleForId5(detail) {
-      let html = `<div class="bubble-title">你想找的是：非对称对抗竞技（1v4）+ 恐怖悬疑氛围 + 角色扮演/技能的游戏</div>
+    // 第五人格详细推荐气泡（严格按示例）
+    function getBubbleForId5() {
+      return `
+      <div class="bubble-title">你想找的是：非对称对抗竞技（1v4）+ 恐怖悬疑氛围 + 角色扮演/技能的游戏</div>
       <div class="explain">核心乐趣：逃生/追捕的紧张感、角色技能的独特策略以及合作/对抗的社交体验。</div>
       <div class="section-title">🌟 强烈推荐（核心玩法高度相似）</div>
       <div class="game-cards">
@@ -590,12 +577,12 @@
         <button onclick="feedback('dislike', 'id5')">不满意</button>
       </div>
       `;
-      return html;
     }
 
-    // 恋与深空详细推荐气泡
-    function getBubbleForLianYu(detail) {
-      let html = `<div class="bubble-title">你想要的是：高颜值3D动态互动 + 多男主情感羁绊 + 强剧情代入感 + 现代/科幻都市背景</div>
+    // 恋与深空详细推荐气泡（严格按示例）
+    function getBubbleForLianYu() {
+      return `
+      <div class="bubble-title">你想要的是：高颜值3D动态互动 + 多男主情感羁绊 + 强剧情代入感 + 现代/科幻都市背景</div>
       <div class="section-title">🌟 核心相似：次世代恋爱互动+高质量3D</div>
       <div class="game-cards">
         <div class="game-card">
@@ -667,7 +654,6 @@
         <button onclick="feedback('dislike', 'lianyu')">不满意</button>
       </div>
       `;
-      return html;
     }
 
     // 追加对话气泡
@@ -680,6 +666,14 @@
       setTimeout(() => {
         document.getElementById('dialogFlow').scrollTop = document.getElementById('dialogFlow').scrollHeight;
       }, 100);
+    }
+
+    // 清空/刷新
+    function clearDialog() {
+      dialogHistory = [];
+      renderDialogFlow();
+      document.getElementById('userInput').value = '';
+      document.getElementById('userInput').focus();
     }
 
     // 反馈与细化
